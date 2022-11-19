@@ -1,65 +1,72 @@
-import java.util.*;	
-class Edge {
-	int src,dest;
-	int weight;
-	Edge(int s,int dest,int weight) {
-		this.src=s;
-		this.dest=dest;
-		this.weight=weight;
-	}
-}
-	
-class Node {
-    int value, weight;
-    Node(int value, int weight) {
-        this.value = value;
-        this.weight = weight;
+import java.util.ArrayList;
+class pair{
+    Integer Key, Value;
+    public pair(Integer destination, Integer weight) {
+        this.Key = destination;
+        this.Value = weight;
     }
-	
-    @Override
-    public String toString() {
-        return this.value + " (" + this.weight + ")";
+    Integer Key(){
+        return this.Key;
+    }
+    Integer Value(){
+        return this.Value;
     }
 }
-	
-class Graph {
-    List<List<Node>> adjList = new ArrayList<>();	
-    public Graph(List<Edge> edges) {
-        int n = 0;
-        for (Edge e: edges) {
-            n = Integer.max(n, Integer.max(e.src, e.dest));
+class createGraph {
+    ArrayList<ArrayList<pair>> graph = new ArrayList<>();
+    int vertices;
+    createGraph(Integer vertices) {
+        for (int i = 0; i <= 5; i++) {
+            this.graph.add(new ArrayList<pair>());
+            this.vertices = vertices;
         }
-	    for (int i = 0; i <= n; i++) {
-	    	adjList.add(i, new ArrayList<>());
-	    }
-	    for (Edge e: edges) {
-	    	adjList.get(e.src).add(new Node(e.dest, e.weight));
-	        adjList.get(e.dest).add(new Node(e.src, e.weight));
-	     }
-	}
-	public static void printGraph(Graph graph) {
-		int src = 0;
-	    int n = graph.adjList.size();
-	
-	    while (src < n) {
-	    	for (Node edge: graph.adjList.get(src)) {
-	    		System.out.printf("%d ——> %s\t", src, edge);
-	        }
-	
-	        System.out.println();
-	        src++;
-	     }
-	 }
+    }
+    void createEdges(Character source, Character destination, int weight) {
+        Integer intSource = source - 'A';
+        Integer intDestination = destination - 'A';
+        this.graph.get(intSource).add(new pair(intDestination, weight));
+    }
 }
-	
+
 public class Problem2 {
-	
-	public static void main(String[] args) {
-		List<Edge> edges = Arrays.asList(
-                new Edge(0, 1, 6), new Edge(1, 2, 7), new Edge(2, 0, 5),
-                new Edge(2, 1, 4), new Edge(3, 2, 10), new Edge(4, 5, 1),
-                new Edge(5, 4, 3));
-        Graph graph = new Graph(edges);
-        Graph.printGraph(graph);
-	}
+    public static void main(String[] args) {
+        calculateAverageDistanceBetweenTwoPoints("A",  "C");
+    }
+    public static void calculateAverageDistanceBetweenTwoPoints(String X, String Y){
+        Integer vertices = 5;
+        createGraph givenGraph = new createGraph(vertices);
+        givenGraph.createEdges('A', 'B', 12);
+        givenGraph.createEdges('A', 'C', 13);
+        givenGraph.createEdges('A', 'E', 8);
+        givenGraph.createEdges('A', 'D', 11);
+        givenGraph.createEdges('D', 'E', 7);
+        givenGraph.createEdges('E', 'C', 4);
+        givenGraph.createEdges('B', 'C', 3);
+        Integer source = X.charAt(0)- 'A';
+        Integer destination = Y.charAt(0) - 'A';
+        ArrayList<ArrayList<pair>> totalPath = new ArrayList<ArrayList<pair>>();
+        ArrayList<pair> path = new ArrayList<pair>();
+        dfs(givenGraph, totalPath, path, source, destination, 0 );
+        int pathCount = totalPath.size();
+        int distance = 0;
+        for(ArrayList<pair> it: totalPath){
+            for(pair it1 : it) {
+                distance += it1.Value();
+            }
+        }
+        double averageDistance = (double)distance /pathCount;
+        System.out.println("Average Distance= "+averageDistance);
+    }
+    private static void dfs(createGraph givenGraph, ArrayList<ArrayList<pair>> totalPath, ArrayList<pair> path, Integer source, Integer destination, Integer weight) {
+        path.add(new pair(source, weight));
+        if(source.equals(destination)){
+            totalPath.add(new ArrayList<pair>(path));
+        }
+        for(pair p : givenGraph.graph.get(source)){
+            int newSource = p.Key;
+            int newWeight = p.Value;
+            dfs(givenGraph, totalPath, path, newSource, destination, newWeight);
+        }
+        path.remove(path.size() - 1);
+    }
 }
